@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -29,6 +30,8 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests()
                 .anyRequest().authenticated();
+
+        // form login 기능
         http
                 .formLogin()
                 //.loginPage("/loginPage")
@@ -53,6 +56,7 @@ public class SecurityConfig {
                 })
                 .permitAll();
 
+        // logout 기능
         http
                 .logout()
                 .logoutUrl("/logout")
@@ -70,11 +74,26 @@ public class SecurityConfig {
                         response.sendRedirect("/login");
                     }
                 })
+
+                // remember me 기능
                 .and()
                 .rememberMe()
-                .rememberMeParameter("remember")
                 .tokenValiditySeconds(3600)
+                .rememberMeParameter("remember")
                 .userDetailsService(userDetailsService);
+
+        // Session management
+        http
+                .sessionManagement()
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(true)
+                .expiredUrl("/expired");
+
+        // Session fixation
+        http
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .sessionFixation().changeSessionId();
 
         return http.build();
     }
