@@ -1,0 +1,8 @@
+spring:
+  security:
+    user:
+      name: kai
+      password: 1234
+
+  main:
+    allow-circular-references: true

@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -13,10 +14,15 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.expression.WebExpressionAuthorizationManager;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
+import org.springframework.security.web.savedrequest.RequestCache;
+import org.springframework.security.web.savedrequest.SavedRequest;
 
 import java.io.IOException;
 
@@ -25,12 +31,9 @@ import java.io.IOException;
 @Configuration
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests()
-                .anyRequest().authenticated();
-
         // form login 기능
         http
                 .formLogin()
@@ -44,14 +47,21 @@ public class SecurityConfig {
                     @Override
                     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
                         System.out.println("authentication : " + authentication.getName());
-                        response.sendRedirect("/");
+
+                        // 인가 예외가 터지기 전, 이전 요청 정보 활용
+                        RequestCache requestCache = new HttpSessionRequestCache();
+
+                        // 사용자의 이전 요청 정보
+                        SavedRequest savedRequest = requestCache.getRequest(request, response);
+                        String redirectUrl = savedRequest.getRedirectUrl();
+
+                        response.sendRedirect(redirectUrl);
                     }
                 })
                 .failureHandler(new AuthenticationFailureHandler() {
                     @Override
                     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
                         System.out.println("exception : " + exception.getMessage());
-                        response.sendRedirect("/login");
                     }
                 })
                 .permitAll();
@@ -94,6 +104,37 @@ public class SecurityConfig {
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .sessionFixation().changeSessionId();
+
+        // Authorize
+        http
+                .securityMatcher("/**")
+                .authorizeHttpRequests(authorize ->
+                    authorize
+                            .requestMatchers("/user").hasRole("USER")
+                            .requestMatchers("/admin/pay").hasRole("ADMIN")
+                            .requestMatchers("/admin/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') or hasRole('SYS')"))
+                            .anyRequest().authenticated()
+                );
+
+        // Authentication & Authorize Exception
+        http
+                .exceptionHandling()
+//                .authenticationEntryPoint(new AuthenticationEntryPoint() {
+//                    @Override
+//                    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+//                        System.out.println("---- Authentication Exception ----");
+//                    }
+//                })
+                .accessDeniedHandler(new AccessDeniedHandler() {
+                    @Override
+                    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+                        System.out.println("---- Authorization Exception ----");
+                    }
+                });
+
+        // CSRF
+        http
+                .csrf().disable();
 
         return http.build();
     }
