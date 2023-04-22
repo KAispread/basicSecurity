@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -27,11 +28,12 @@ import org.springframework.security.web.savedrequest.SavedRequest;
 import java.io.IOException;
 
 @RequiredArgsConstructor
-@EnableWebSecurity
-@Configuration
+//@EnableWebSecurity
+//@Configuration
 public class SecurityConfig {
     private final UserDetailsService userDetailsService;
 
+    @Order(0)
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // form login 기능
@@ -107,10 +109,10 @@ public class SecurityConfig {
 
         // Authorize
         http
-                .securityMatcher("/**")
+                .securityMatcher("/admin/**")
                 .authorizeHttpRequests(authorize ->
                     authorize
-                            .requestMatchers("/user").hasRole("USER")
+                            //.requestMatchers("/user").hasRole("USER")
                             .requestMatchers("/admin/pay").hasRole("ADMIN")
                             .requestMatchers("/admin/**").access(new WebExpressionAuthorizationManager("hasRole('ADMIN') or hasRole('SYS')"))
                             .anyRequest().authenticated()
