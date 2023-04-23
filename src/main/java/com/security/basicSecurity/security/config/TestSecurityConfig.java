@@ -1,15 +1,13 @@
-package com.security.basicSecurity.security;
+package com.security.basicSecurity.security.config;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -30,11 +28,11 @@ import java.io.IOException;
 @RequiredArgsConstructor
 //@EnableWebSecurity
 //@Configuration
-public class SecurityConfig {
+public class TestSecurityConfig {
     private final UserDetailsService userDetailsService;
 
-    @Order(0)
-    @Bean
+//    @Order(0)
+//    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         // form login 기능
         http
