@@ -1,5 +1,6 @@
 package com.security.basicSecurity.security.config;
 
+import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,18 +12,25 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.security.basicSecurity.domain.Role.*;
 
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
+    // Custom 인증 처리
     private final UserDetailsService userDetailsService;
     private final AuthenticationProvider authenticationProvider;
     private final AuthenticationDetailsSource detailsSource;
+
+    // Custom 핸들러
     private final AuthenticationSuccessHandler successHandler;
     private final AuthenticationFailureHandler failureHandler;
     private final AccessDeniedHandler accessDeniedHandler;
+
+    // Custom 필터
+    private final AjaxLoginProcessingFilter ajaxLoginProcessingFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -63,6 +71,9 @@ public class SecurityConfig {
         http
                 .exceptionHandling()
                 .accessDeniedHandler(accessDeniedHandler);
+
+        http
+                .addFilterBefore(ajaxLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
