@@ -1,11 +1,13 @@
 package com.security.basicSecurity.security.config;
 
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
+import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
+import com.security.basicSecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,7 +23,8 @@ import static com.security.basicSecurity.domain.Role.*;
 public class SecurityConfig {
     // Custom 인증 처리
     private final UserDetailsService userDetailsService;
-    private final AuthenticationProvider authenticationProvider;
+    private final CustomAuthenticationProvider customAuthenticationProvider;
+    private final AjaxAuthenticationProvider ajaxAuthenticationProvider;
     private final AuthenticationDetailsSource detailsSource;
 
     // Custom 핸들러
@@ -41,12 +44,12 @@ public class SecurityConfig {
         // userDetailsService & authenticationProvider 지정
         http
                 .userDetailsService(userDetailsService)
-                .authenticationProvider(authenticationProvider);
+                .authenticationProvider(customAuthenticationProvider);
 
         http
                 .authorizeHttpRequests(
                         authorize -> authorize
-                                .requestMatchers("/", "/h2-console", "/login?*", "/login?**", "/users", "/login?error*").permitAll()
+                                .requestMatchers("/", "/h2-console", "/login?*", "/login?**", "/users", "/login?error*", "/api/login**").permitAll()
                                 .requestMatchers("/mypage").hasRole(USER.name())
                                 .requestMatchers("/message").hasRole(MANAGER.name())
                                 .requestMatchers("/config").hasRole(ADMIN.name())

@@ -2,8 +2,10 @@ package com.security.basicSecurity.domain;
 
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+@NoArgsConstructor
 @Getter
 public class AccountDto {
     private String username;
