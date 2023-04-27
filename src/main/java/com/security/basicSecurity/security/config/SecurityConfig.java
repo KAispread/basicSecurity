@@ -1,6 +1,5 @@
 package com.security.basicSecurity.security.config;
 
-import com.security.basicSecurity.domain.entity.Role;
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
 import com.security.basicSecurity.security.filter.CustomAuthorizationFilter;
 import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
@@ -16,15 +15,12 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.security.basicSecurity.domain.entity.Role.*;
-import static com.security.basicSecurity.security.config.SecurityBeanConfig.authorityAuthorizationManager;
 
 @RequiredArgsConstructor
 @Configuration
