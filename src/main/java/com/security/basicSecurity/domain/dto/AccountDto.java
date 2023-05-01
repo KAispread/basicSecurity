@@ -1,5 +1,6 @@
-package com.security.basicSecurity.domain;
+package com.security.basicSecurity.domain.dto;
 
+import com.security.basicSecurity.domain.entity.Account;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

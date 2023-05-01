@@ -1,7 +1,7 @@
 package com.security.basicSecurity.controller.user;
 
-import com.security.basicSecurity.domain.Account;
-import com.security.basicSecurity.domain.AccountDto;
+import com.security.basicSecurity.domain.entity.Account;
+import com.security.basicSecurity.domain.dto.AccountDto;
 import com.security.basicSecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

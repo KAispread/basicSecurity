@@ -1,6 +1,7 @@
 package com.security.basicSecurity.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.security.basicSecurity.security.authorization.CustomAuthorizationManager;
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
 import com.security.basicSecurity.security.handler.AjaxAuthenticationFailureHandler;
 import com.security.basicSecurity.security.handler.AjaxAuthenticationSuccessHandler;
@@ -11,11 +12,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
+import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
+import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
+import org.springframework.security.web.util.matcher.RequestMatcher;
+import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
 @Configuration
 public class SecurityBeanConfig {

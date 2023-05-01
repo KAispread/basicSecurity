@@ -1,8 +1,7 @@
 package com.security.basicSecurity.config;
 
-import com.security.basicSecurity.domain.Account;
-import com.security.basicSecurity.domain.AccountDto;
-import com.security.basicSecurity.domain.Role;
+import com.security.basicSecurity.domain.entity.Account;
+import com.security.basicSecurity.domain.dto.AccountDto;
 import com.security.basicSecurity.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.security.basicSecurity.domain.Role.USER;
+import static com.security.basicSecurity.domain.entity.Role.USER;
 
 @Component
 public class InitUser {

@@ -1,6 +1,6 @@
 package com.security.basicSecurity.repository;
 
-import com.security.basicSecurity.domain.Account;
+import com.security.basicSecurity.domain.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

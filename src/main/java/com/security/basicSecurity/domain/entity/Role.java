@@ -1,4 +1,4 @@
-package com.security.basicSecurity.domain;
+package com.security.basicSecurity.domain.entity;
 
 public enum Role {
     USER,

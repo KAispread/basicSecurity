@@ -1,6 +1,5 @@
 package com.security.basicSecurity.controller.login;
 
-import com.security.basicSecurity.domain.Account;
 import com.security.basicSecurity.security.service.AccountContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
