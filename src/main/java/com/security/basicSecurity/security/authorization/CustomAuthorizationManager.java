@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 public class CustomAuthorizationManager implements AuthorizationManager<RequestAuthorizationContext> {
     @Override
     public AuthorizationDecision check(Supplier<Authentication> authentication, RequestAuthorizationContext object) {
+        System.out.println("INVOKED MANAGER LOGIC");
         return new AuthorizationDecision(true);
     }
 }

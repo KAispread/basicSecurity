@@ -1,6 +1,7 @@
 package com.security.basicSecurity.security.config;
 
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
+import com.security.basicSecurity.security.filter.CustomAuthorizationFilter;
 import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
 import com.security.basicSecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -33,6 +36,7 @@ public class SecurityConfig {
 
     // Custom 필터
     private final AjaxLoginProcessingFilter ajaxLoginProcessingFilter;
+    private final CustomAuthorizationFilter authorizationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -75,7 +79,8 @@ public class SecurityConfig {
                 .accessDeniedHandler(accessDeniedHandler);
 
         http
-                .addFilterBefore(ajaxLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(ajaxLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(authorizationFilter, ExceptionTranslationFilter.class);
 
         return http.build();
     }

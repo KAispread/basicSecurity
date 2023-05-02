@@ -3,6 +3,7 @@ package com.security.basicSecurity.security.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.security.basicSecurity.security.authorization.CustomAuthorizationManager;
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
+import com.security.basicSecurity.security.filter.CustomAuthorizationFilter;
 import com.security.basicSecurity.security.handler.AjaxAuthenticationFailureHandler;
 import com.security.basicSecurity.security.handler.AjaxAuthenticationSuccessHandler;
 import com.security.basicSecurity.security.handler.CustomAccessDeniedHandler;
@@ -19,6 +20,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
@@ -77,5 +79,19 @@ public class SecurityBeanConfig {
     @Bean
     public AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
         return new AjaxAuthenticationFailureHandler();
+    }
+
+    @Bean
+    public CustomAuthorizationFilter customAuthorizationFilter(HandlerMappingIntrospector introspector) {
+        MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
+        RequestMatcher customPath = new AndRequestMatcher(
+                mvcMatcherBuilder.pattern("/custom")
+        );
+
+        RequestMatcherDelegatingAuthorizationManager authorizationManager = RequestMatcherDelegatingAuthorizationManager.builder()
+                .add(customPath, new CustomAuthorizationManager())
+                .build();
+
+        return new CustomAuthorizationFilter(authorizationManager);
     }
 }
