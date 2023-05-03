@@ -1,4 +1,4 @@
-package com.security.basicSecurity.security.details;
+package com.security.basicSecurity.security.common;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;

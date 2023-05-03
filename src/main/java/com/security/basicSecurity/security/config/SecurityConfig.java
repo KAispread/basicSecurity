@@ -1,5 +1,6 @@
 package com.security.basicSecurity.security.config;
 
+import com.security.basicSecurity.domain.entity.Role;
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
 import com.security.basicSecurity.security.filter.CustomAuthorizationFilter;
 import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
@@ -80,7 +81,7 @@ public class SecurityConfig {
 
         http
                 .addFilterBefore(ajaxLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(authorizationFilter, ExceptionTranslationFilter.class);
+                .addFilterAfter(authorizationFilter, AuthorizationFilter.class);
 
         return http.build();
     }

@@ -1,6 +1,6 @@
 package com.security.basicSecurity.security.provider;
 
-import com.security.basicSecurity.security.details.FormWebAuthenticationDetails;
+import com.security.basicSecurity.security.common.FormWebAuthenticationDetails;
 import com.security.basicSecurity.security.service.AccountContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;

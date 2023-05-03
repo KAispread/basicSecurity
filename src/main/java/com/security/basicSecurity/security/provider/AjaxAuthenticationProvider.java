@@ -1,6 +1,5 @@
 package com.security.basicSecurity.security.provider;
 
-import com.security.basicSecurity.security.details.FormWebAuthenticationDetails;
 import com.security.basicSecurity.security.service.AccountContext;
 import com.security.basicSecurity.security.token.AjaxAuthenticationToken;
 import lombok.RequiredArgsConstructor;
