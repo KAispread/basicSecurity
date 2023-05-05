@@ -12,19 +12,24 @@ import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
 import org.springframework.security.web.util.matcher.AndRequestMatcher;
+import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 
@@ -88,9 +93,13 @@ public class SecurityBeanConfig {
         RequestMatcher customPath = new AndRequestMatcher(
                 mvcMatcherBuilder.pattern("/custom")
         );
+        RequestMatcher any = AnyRequestMatcher.INSTANCE;
+        AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager = AuthorityAuthorizationManager.hasAnyAuthority(Role.USER.name());
+        authorityAuthorizationManager.setRoleHierarchy(roleHierarchy());
 
         RequestMatcherDelegatingAuthorizationManager authorizationManager = RequestMatcherDelegatingAuthorizationManager.builder()
-                .add(customPath, new RoleAuthorizationManager(Role.USER))
+                .add(customPath, authorityAuthorizationManager)
+                .add(any, new AuthenticatedAuthorizationManager<>())
                 .build();
 
         return new CustomAuthorizationFilter(authorizationManager);
@@ -108,8 +117,11 @@ public class SecurityBeanConfig {
     }
 
     @Bean
-    public RoleHierarchyVoter roleHierarchyVoter() {
-        RoleHierarchyVoter roleHierarchyVoter = new RoleHierarchyVoter(roleHierarchy());
-
+    public DefaultMethodSecurityExpressionHandler roleHierarchyVoter() {
+        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        expressionHandler.setRoleHierarchy(roleHierarchy());
+        return expressionHandler;
     }
+
+
 }

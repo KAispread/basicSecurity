@@ -1,10 +1,12 @@
 package com.security.basicSecurity.security.filter;
 
+import com.security.basicSecurity.security.provider.CustomAuthenticationProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.authorization.AuthorizationEventPublisher;
@@ -48,7 +50,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         String alreadyFilteredAttributeName = getAlreadyFilteredAttributeName();
         request.setAttribute(alreadyFilteredAttributeName, Boolean.TRUE);
         try {
-            AuthorizationDecision decision = this.authorizationManager.check(this::getAuthentication, request);
+            AuthorizationDecision decision = new AuthorizationDecision(true);
+            if (getAuthentication() != null) {
+                decision = this.authorizationManager.check(this::getAuthentication, request);
+            }
             this.eventPublisher.publishAuthorizationEvent(this::getAuthentication, request, decision);
             if (decision != null && !decision.isGranted()) {
                 throw new AccessDeniedException("Access Denied");
@@ -71,10 +76,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     private Authentication getAuthentication() {
         Authentication authentication = this.securityContextHolderStrategy.getContext().getAuthentication();
-        if (authentication == null) {
-            throw new AuthenticationCredentialsNotFoundException(
-                    "An Authentication object was not found in the SecurityContext");
-        }
         return authentication;
     }
 

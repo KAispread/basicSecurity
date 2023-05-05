@@ -38,9 +38,9 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("비밀번호가 일치하지 않습니다");
         }
 
-        FormWebAuthenticationDetails details = (FormWebAuthenticationDetails) authentication.getDetails();
-        String secretKey = details.getSecretKey();
-        if (secretKey == null || secretKey.equals("secret")) throw new InsufficientAuthenticationException("Secret_key 가 다릅니다");
+//        FormWebAuthenticationDetails details = (FormWebAuthenticationDetails) authentication.getDetails();
+//        String secretKey = details.getSecretKey();
+//        if (secretKey == null || secretKey.equals("secret")) throw new InsufficientAuthenticationException("Secret_key 가 다릅니다");
 
         /* UsernamePasswordAuthenticationToken
         * 생성자 파라미터

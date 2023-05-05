@@ -68,19 +68,19 @@ public class SecurityConfig {
                 // 로그인 form 의 action url 과 동일해야함
                 .loginProcessingUrl("/login_proc")
                 // 추가 정보 저장
-                .authenticationDetailsSource(detailsSource)
+//                .authenticationDetailsSource(detailsSource)
 
                 // 성공, 실패 핸들러
                 .successHandler(successHandler)
                 .failureHandler(failureHandler)
                 .permitAll();
 
-        http
-                .exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler);
+//        http
+//                .exceptionHandling()
+//                .accessDeniedHandler(accessDeniedHandler);
 
         http
-                .addFilterBefore(ajaxLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class)
+                //.addFilterBefore(ajaxLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterAfter(authorizationFilter, AuthorizationFilter.class);
 
         return http.build();
