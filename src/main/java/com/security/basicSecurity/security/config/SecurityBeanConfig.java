@@ -2,7 +2,6 @@ package com.security.basicSecurity.security.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.security.basicSecurity.domain.entity.Role;
-import com.security.basicSecurity.security.authorization.RoleAuthorizationManager;
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
 import com.security.basicSecurity.security.filter.CustomAuthorizationFilter;
 import com.security.basicSecurity.security.handler.AjaxAuthenticationFailureHandler;
@@ -12,10 +11,9 @@ import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
-import org.springframework.security.access.vote.RoleHierarchyVoter;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
@@ -25,6 +23,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.access.intercept.RequestMatcherDelegatingAuthorizationManager;
 import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
@@ -32,6 +31,8 @@ import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AnyRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
+
+import static org.springframework.http.HttpMethod.GET;
 
 @Configuration
 public class SecurityBeanConfig {
@@ -91,37 +92,41 @@ public class SecurityBeanConfig {
     public CustomAuthorizationFilter customAuthorizationFilter(HandlerMappingIntrospector introspector) {
         MvcRequestMatcher.Builder mvcMatcherBuilder = new MvcRequestMatcher.Builder(introspector);
         RequestMatcher customPath = new AndRequestMatcher(
-                mvcMatcherBuilder.pattern("/custom")
+                mvcMatcherBuilder.pattern(GET, "/custom")
         );
         RequestMatcher any = AnyRequestMatcher.INSTANCE;
-        AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager = AuthorityAuthorizationManager.hasAnyAuthority(Role.USER.name());
-        authorityAuthorizationManager.setRoleHierarchy(roleHierarchy());
 
         RequestMatcherDelegatingAuthorizationManager authorizationManager = RequestMatcherDelegatingAuthorizationManager.builder()
-                .add(customPath, authorityAuthorizationManager)
+                .add(customPath, authorityAuthorizationManager(Role.USER.name()))
                 .add(any, new AuthenticatedAuthorizationManager<>())
                 .build();
 
         return new CustomAuthorizationFilter(authorizationManager);
     }
 
+    public static AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager(String roleName) {
+        AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager = AuthorityAuthorizationManager.hasAnyAuthority(roleName);
+        authorityAuthorizationManager.setRoleHierarchy(roleHierarchy());
+        return authorityAuthorizationManager;
+    }
+
     @Bean
-    public RoleHierarchy roleHierarchy() {
+    public static RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
         roleHierarchy.setHierarchy(
-                        "ROLE_ADMIN > ROLE_MANAGER" +
-                        "ROLE_MANAGER > ROLE_USER" +
-                        "ROLE_USER > ROLE_GUEST"
+                """
+                        ADMIN > MANAGER
+                        MANAGER > USER
+                        USER > GUEST
+                """
         );
         return roleHierarchy;
     }
 
     @Bean
-    public DefaultMethodSecurityExpressionHandler roleHierarchyVoter() {
-        DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+    public DefaultWebSecurityExpressionHandler roleHierarchyVoter() {
+        DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
         expressionHandler.setRoleHierarchy(roleHierarchy());
         return expressionHandler;
     }
-
-
 }

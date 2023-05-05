@@ -20,6 +20,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.security.basicSecurity.domain.entity.Role.*;
+import static com.security.basicSecurity.security.config.SecurityBeanConfig.authorityAuthorizationManager;
 
 @RequiredArgsConstructor
 @Configuration
@@ -54,7 +55,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/", "/h2-console", "/login?*", "/login?**", "/users", "/login?error*", "/api/login**").permitAll()
-                                .requestMatchers("/mypage").hasRole(USER.name())
+                                .requestMatchers("/mypage").access(authorityAuthorizationManager(USER.name()))
                                 .requestMatchers("/message").hasRole(MANAGER.name())
                                 .requestMatchers("/config").hasRole(ADMIN.name())
                                 .anyRequest().permitAll()
