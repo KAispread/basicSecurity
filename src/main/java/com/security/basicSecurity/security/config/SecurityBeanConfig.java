@@ -9,6 +9,10 @@ import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -65,8 +69,30 @@ public class SecurityBeanConfig {
         return new AjaxAuthenticationSuccessHandler();
     }
 
+    // 권한 계층
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
+        roleHierarchy.setHierarchy(
+                """
+                        ROLE_ADMIN > ROLE_MANAGER
+                        ROLE_MANAGER > ROLE_USER
+                        ROLE_USER > ROLE_GUEST
+                """
+        );
+        return roleHierarchy;
+    }
+
     @Bean
     public AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler() {
         return new AjaxAuthenticationFailureHandler();
+    }
+
+    // PreAuthorize 어노테이션에 권한 계층을 설정
+    @Bean
+    public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+        DefaultMethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler = new DefaultMethodSecurityExpressionHandler();
+        defaultMethodSecurityExpressionHandler.setRoleHierarchy(roleHierarchy());
+        return defaultMethodSecurityExpressionHandler;
     }
 }

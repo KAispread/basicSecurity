@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.security.basicSecurity.domain.Role.ADMIN;
 import static com.security.basicSecurity.domain.Role.USER;
 
 @Component
@@ -44,8 +45,16 @@ public class InitUser {
                     .role(USER.name())
                     .build();
 
+            AccountDto june = AccountDto.builder()
+                    .username("june")
+                    .password("1234")
+                    .age(26)
+                    .email("email1@email.com")
+                    .role(ADMIN.name())
+                    .build();
 
             accountList.add(kai.toEntity(passwordEncoder));
+            accountList.add(june.toEntity(passwordEncoder));
             userRepository.saveAll(accountList);
         }
     }

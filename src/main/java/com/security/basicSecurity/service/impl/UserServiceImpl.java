@@ -4,6 +4,7 @@ import com.security.basicSecurity.domain.Account;
 import com.security.basicSecurity.repository.UserRepository;
 import com.security.basicSecurity.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,4 +19,10 @@ public class UserServiceImpl implements UserService {
     public void createUser(Account account) {
         userRepository.save(account);
     }
+
+    @Secured("MANAGER")
+    public void order() {
+        System.out.println("order");
+    }
 }
+
