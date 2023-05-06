@@ -13,8 +13,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.security.basicSecurity.domain.entity.Role.USER;
-
 @RequiredArgsConstructor
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -28,7 +26,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         // 권한 정보 생성
         List<GrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority(account.getRole()));
+        roles.add(new SimpleGrantedAuthority("ROLE_" + account.getRole()));
 
         // UserDetails 를 상속받은 인증 객체를 반환
         // 이후 AccountContext 를 사용하여 인증 처리

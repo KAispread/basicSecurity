@@ -1,29 +1,26 @@
 package com.security.basicSecurity.security.config;
 
-import com.security.basicSecurity.domain.entity.Role;
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
-import com.security.basicSecurity.security.filter.CustomAuthorizationFilter;
 import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
 import com.security.basicSecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
-import org.springframework.security.web.access.intercept.AuthorizationFilter;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.security.basicSecurity.domain.entity.Role.*;
-import static com.security.basicSecurity.security.config.SecurityBeanConfig.authorityAuthorizationManager;
 
 @RequiredArgsConstructor
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 public class SecurityConfig {
     // Custom 인증 처리
     private final UserDetailsService userDetailsService;
@@ -38,7 +35,6 @@ public class SecurityConfig {
 
     // Custom 필터
     private final AjaxLoginProcessingFilter ajaxLoginProcessingFilter;
-    private final CustomAuthorizationFilter authorizationFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -55,7 +51,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/", "/h2-console", "/login?*", "/login?**", "/users", "/login?error*", "/api/login**").permitAll()
-                                .requestMatchers("/mypage").access(authorityAuthorizationManager(USER.name()))
+                                .requestMatchers("/mypage").hasRole(USER.name())
                                 .requestMatchers("/message").hasRole(MANAGER.name())
                                 .requestMatchers("/config").hasRole(ADMIN.name())
                                 .anyRequest().permitAll()
@@ -69,20 +65,19 @@ public class SecurityConfig {
                 // 로그인 form 의 action url 과 동일해야함
                 .loginProcessingUrl("/login_proc")
                 // 추가 정보 저장
-//                .authenticationDetailsSource(detailsSource)
+                .authenticationDetailsSource(detailsSource)
 
                 // 성공, 실패 핸들러
                 .successHandler(successHandler)
                 .failureHandler(failureHandler)
                 .permitAll();
 
-//        http
-//                .exceptionHandling()
-//                .accessDeniedHandler(accessDeniedHandler);
+        http
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler);
 
         http
-                //.addFilterBefore(ajaxLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterAfter(authorizationFilter, AuthorizationFilter.class);
+                .addFilterBefore(ajaxLoginProcessingFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
