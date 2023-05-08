@@ -12,6 +12,7 @@ import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,7 +48,7 @@ public class SecurityBeanConfig {
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web -> {
             web.ignoring().requestMatchers(PathRequest.toH2Console());
-            web.ignoring().requestMatchers("/css/**", "/js/**", "/images/**", "/error", "/favicon.ico");
+            web.ignoring().requestMatchers("/css/**", "/js/**","/images/**", "/error", "/favicon.ico");
         });
     }
 
@@ -123,10 +124,12 @@ public class SecurityBeanConfig {
         return roleHierarchy;
     }
 
+
+    // PreAuthorize 어노테이션에 권한 계층을 설정
     @Bean
-    public DefaultWebSecurityExpressionHandler roleHierarchyVoter() {
-        DefaultWebSecurityExpressionHandler expressionHandler = new DefaultWebSecurityExpressionHandler();
-        expressionHandler.setRoleHierarchy(roleHierarchy());
-        return expressionHandler;
+    public DefaultMethodSecurityExpressionHandler methodSecurityExpressionHandler() {
+        DefaultMethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler = new DefaultMethodSecurityExpressionHandler();
+        defaultMethodSecurityExpressionHandler.setRoleHierarchy(roleHierarchy());
+        return defaultMethodSecurityExpressionHandler;
     }
 }

@@ -1,11 +1,9 @@
 package com.security.basicSecurity.security.provider;
 
-import com.security.basicSecurity.security.common.FormWebAuthenticationDetails;
 import com.security.basicSecurity.security.service.AccountContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -49,7 +47,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         * 3. Collection<? extends GrantedAuthority> authorities - 권한 정보 [UserDetails 에 저장되어있음]
         * */
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userDetails.getAccount(), null, userDetails.getAuthorities());
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
         return authenticationToken;
     }
