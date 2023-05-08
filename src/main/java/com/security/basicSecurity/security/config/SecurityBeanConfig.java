@@ -104,14 +104,14 @@ public class SecurityBeanConfig {
         return new CustomAuthorizationFilter(authorizationManager);
     }
 
-    public static AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager(String roleName) {
+    public AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager(String roleName) {
         AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager = AuthorityAuthorizationManager.hasAnyAuthority(roleName);
         authorityAuthorizationManager.setRoleHierarchy(roleHierarchy());
         return authorityAuthorizationManager;
     }
 
     @Bean
-    public static RoleHierarchy roleHierarchy() {
+    public RoleHierarchy roleHierarchy() {
         RoleHierarchyImpl roleHierarchy = new RoleHierarchyImpl();
         roleHierarchy.setHierarchy(
                 """

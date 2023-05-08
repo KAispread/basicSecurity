@@ -1,6 +1,5 @@
 package com.security.basicSecurity.security.config;
 
-import com.security.basicSecurity.domain.entity.Role;
 import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
 import com.security.basicSecurity.security.filter.CustomAuthorizationFilter;
 import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
@@ -8,23 +7,26 @@ import com.security.basicSecurity.security.provider.CustomAuthenticationProvider
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
+import org.springframework.security.authorization.AuthorityAuthorizationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import org.springframework.security.web.access.intercept.RequestAuthorizationContext;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import static com.security.basicSecurity.domain.entity.Role.*;
-import static com.security.basicSecurity.security.config.SecurityBeanConfig.authorityAuthorizationManager;
 
 @RequiredArgsConstructor
 @Configuration
 public class SecurityConfig {
+    // Role Hierarchy
+    private final RoleHierarchy roleHierarchy;
+
     // Custom 인증 처리
     private final UserDetailsService userDetailsService;
     private final CustomAuthenticationProvider customAuthenticationProvider;
@@ -55,7 +57,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(
                         authorize -> authorize
                                 .requestMatchers("/", "/h2-console", "/login?*", "/login?**", "/users", "/login?error*", "/api/login**").permitAll()
-                                .requestMatchers("/mypage").access(authorityAuthorizationManager(USER.name()))
+                                .requestMatchers("/mypage").access(authorityAuthorizationManager(USER.name(), MANAGER.name()))
                                 .requestMatchers("/message").hasRole(MANAGER.name())
                                 .requestMatchers("/config").hasRole(ADMIN.name())
                                 .anyRequest().permitAll()
@@ -85,5 +87,11 @@ public class SecurityConfig {
                 .addFilterAfter(authorizationFilter, AuthorizationFilter.class);
 
         return http.build();
+    }
+
+    public AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager(String... roleName) {
+        AuthorityAuthorizationManager<RequestAuthorizationContext> authorityAuthorizationManager = AuthorityAuthorizationManager.hasAnyAuthority(roleName);
+        authorityAuthorizationManager.setRoleHierarchy(roleHierarchy);
+        return authorityAuthorizationManager;
     }
 }
