@@ -48,7 +48,7 @@ public class InitUser {
             AccountDto june = AccountDto.builder()
                     .username("june")
                     .password("1234")
-                    .age(26)
+                    .age(30)
                     .email("email1@email.com")
                     .role(ADMIN.name())
                     .build();

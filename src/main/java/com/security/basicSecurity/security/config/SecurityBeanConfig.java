@@ -5,16 +5,24 @@ import com.security.basicSecurity.security.filter.AjaxLoginProcessingFilter;
 import com.security.basicSecurity.security.handler.AjaxAuthenticationFailureHandler;
 import com.security.basicSecurity.security.handler.AjaxAuthenticationSuccessHandler;
 import com.security.basicSecurity.security.handler.CustomAccessDeniedHandler;
+import com.security.basicSecurity.security.manager.BeforeAuthorizationManager;
 import com.security.basicSecurity.security.provider.AjaxAuthenticationProvider;
+import org.aopalliance.intercept.MethodInvocation;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.support.JdkRegexpMethodPointcut;
+import org.springframework.aop.support.annotation.AnnotationMatchingPointcut;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
-import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.method.*;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -94,5 +102,43 @@ public class SecurityBeanConfig {
         DefaultMethodSecurityExpressionHandler defaultMethodSecurityExpressionHandler = new DefaultMethodSecurityExpressionHandler();
         defaultMethodSecurityExpressionHandler.setRoleHierarchy(roleHierarchy());
         return defaultMethodSecurityExpressionHandler;
+    }
+
+    // Method 인가 처리 순서 지정
+    @Bean
+    public Advisor postFilterAuthorizationInterceptor() {
+        PostFilterAuthorizationMethodInterceptor interceptor = new PostFilterAuthorizationMethodInterceptor();
+        interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE.getOrder() - 1);
+        return interceptor;
+    }
+
+    // custom before-method AuthorizationManager
+    @Bean
+    public Advisor customAuthorizeBeforeMethod() {
+        JdkRegexpMethodPointcut pattern = new JdkRegexpMethodPointcut();
+        pattern.setPattern("com.security.basicSecurity.aopsecurity.AopSecurityController.*(..)");
+        AuthorizationManager<MethodInvocation> rule = beforeAuthorizationManager();
+
+        AuthorizationManagerBeforeMethodInterceptor interceptor = new AuthorizationManagerBeforeMethodInterceptor(pattern, rule);
+        interceptor.setOrder(AuthorizationInterceptorsOrder.PRE_AUTHORIZE.getOrder() + 1);
+        return interceptor;
+    }
+
+
+    // custom after-method AuthorizationManager
+    @Bean
+    public Advisor customAuthorizeAfterMethod(AuthorizationManager<MethodInvocationResult> rule) {
+        // Annotation 기반 point cut
+
+        AnnotationMatchingPointcut pointcut = new AnnotationMatchingPointcut(PostAuthorize.class);
+
+        AuthorizationManagerAfterMethodInterceptor interceptor = new AuthorizationManagerAfterMethodInterceptor(pointcut, rule);
+        interceptor.setOrder(AuthorizationInterceptorsOrder.POST_AUTHORIZE.getOrder() + 1);
+        return interceptor;
+    }
+
+    @Bean
+    public BeforeAuthorizationManager beforeAuthorizationManager() {
+        return new BeforeAuthorizationManager();
     }
 }
